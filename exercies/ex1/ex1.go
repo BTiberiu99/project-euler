@@ -18,16 +18,19 @@ Find the sum of all the multiples of 3 or 5 below the provided parameter value n
 */
 func Ex(number int64) uint64 {
 	nr3 := uint64(number) / 3
+	//Lower numbers
 	if number%3 == 0 {
 		nr3--
 	}
 
 	nr5 := uint64(number) / 5
+	//Lower numbers
 	if number%5 == 0 {
 		nr5--
 	}
 
 	nr15 := uint64(number) / 15
+	//Lower numbers
 	if number%15 == 0 {
 		nr15--
 	}
