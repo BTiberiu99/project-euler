@@ -3,6 +3,7 @@ package ex2
 import (
 	"euler/app"
 	"euler/utils"
+	"math"
 	"strconv"
 )
 
@@ -40,12 +41,15 @@ func Ex(number int64) uint64 {
 
 	}
 
-	// sqrt5 := math.Sqrt(5)
-	// x := 1 / sqrt5
-	// y := math.Pow((1+sqrt5), float64(number)) / math.Pow(float64(2), float64(number))
-	// fmt.Println(number, x, y)
-	// return uint64(math.Floor(x * y))
 	return sum
+}
+
+func NthFibonnaciNumber(number int64) uint64 {
+	sqrt5 := math.Sqrt(5)
+	x := 1 / sqrt5
+	y := math.Pow((1+sqrt5), float64(number)) / math.Pow(float64(2), float64(number))
+
+	return uint64(math.Floor(x * y))
 }
 
 func Register() {
