@@ -22,7 +22,7 @@ func Print() {
 func parse() (string, string, bool) {
 	nrEx := flag.String("ex", "1", "Exercies number")
 	params := flag.String("params", "", "Parmas split by ,")
-	test := flag.Bool("--test", false, "Test Exercie")
+	test := flag.Bool("test", false, "Test Exercie")
 	flag.Parse()
 	return *nrEx, *params, *test
 }
@@ -30,7 +30,7 @@ func parse() (string, string, bool) {
 //Start ... Start the Application
 func Start() {
 
-	nrEx,params,test := parse()
+	nrEx, params, test := parse()
 	if test {
 		f, exist := tests[utils.Name(nrEx)]
 		if !exist {
@@ -74,5 +74,16 @@ func AddExercies(nrEx string, f func(...string) []interface{}) {
 
 //AddTest ... Add new test of exercies to be runned
 func AddTest(nrEx string, f func()) {
-	tests[utils.Name(nrEx)] = f
+	tests[utils.Name(nrEx)] = func() {
+
+		defer func() {
+			if r := recover(); r != nil {
+
+				fmt.Fprintf(os.Stderr, "Test for exercies %s failed with error %s", nrEx, fmt.Sprint(r))
+			}
+
+		}()
+
+		f()
+	}
 }

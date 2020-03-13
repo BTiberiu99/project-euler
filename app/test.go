@@ -30,15 +30,15 @@ func Tests(file io.Reader, nrEx string) {
 		err, rezs := exercies["ex"+nrEx](strings.Split(test.Input, ",")...)
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Test %d failed with error %s", i, err.Error())
+			fmt.Fprintf(os.Stderr, "Test %d failed with error %s\n", i, err.Error())
 		}
 
 		rez := TransfRezs(rezs)
 
 		if test.Expect == rez {
-			fmt.Fprintf(os.Stdout, "Test %d passes %s=%s", i, test.Input, test.Expect)
+			fmt.Fprintf(os.Stdout, "Test %d passes %s=%s\n", i, test.Input, test.Expect)
 		} else {
-			fmt.Fprintf(os.Stderr, "Test %d failed input %s expected %s got %s", i, test.Input, test.Expect, rez)
+			fmt.Fprintf(os.Stderr, "Test %d failed input %s expected %s got %s\n", i, test.Input, test.Expect, rez)
 		}
 	}
 }
