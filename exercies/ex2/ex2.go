@@ -2,7 +2,7 @@ package ex2
 
 import (
 	"euler/app"
-	"euler/utils"
+	"euler/exercies"
 	"math"
 	"strconv"
 )
@@ -73,14 +73,5 @@ func Register() {
 	})
 
 	//Tests
-	app.AddTest(Name, func() {
-		read, close, err := utils.ReadFileName(PathTest)
-		defer close()
-		if err != nil {
-			panic(err.Error())
-		}
-
-		app.Tests(read, Name)
-
-	})
+	app.AddTest(Name, exercies.EasyTest(Name, PathTest))
 }

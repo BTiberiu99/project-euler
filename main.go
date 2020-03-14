@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	app.Print()
+
 	app.Start()
 }

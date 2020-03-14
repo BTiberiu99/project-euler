@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+//TransfRezs... Transforms rezs into form of string joined by , to check with input of the same type
 func TransfRezs(rezs []interface{}) string {
 
 	rezsS := make([]string, len(rezs))

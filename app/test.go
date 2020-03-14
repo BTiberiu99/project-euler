@@ -25,10 +25,14 @@ type Test struct {
 
 func (test *Test) Show(rezs []interface{}, final bool) bool {
 
+	//Not Special tests
 	if !test.Special {
 
 		rez := TransfRezs(rezs)
+
 		if test.Expect == rez {
+
+			//For range
 			if !final {
 				return true
 			} else {
@@ -39,13 +43,13 @@ func (test *Test) Show(rezs []interface{}, final bool) bool {
 			return false
 		}
 	} else {
-		f, exist := specialtests.All[test.SanitizedExpect()]
+		run, exist := specialtests.All[test.SanitizedExpect()]
 
 		if !exist {
 			fmt.Fprintf(os.Stderr, "Test %s dosen't exist\n", test.Expect)
 			return false
 		} else {
-			pass, err := f(rezs)
+			pass, err := run(rezs)
 
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Test %d failed with error %s \n", test.Nr, err.Error())
@@ -53,6 +57,7 @@ func (test *Test) Show(rezs []interface{}, final bool) bool {
 			} else {
 
 				if pass {
+					//For range
 					if !final {
 						return true
 					} else {
@@ -113,43 +118,57 @@ func (test *Test) Range(nrEx string) {
 
 }
 
-func Tests(file io.Reader, nrEx string) {
+func (test *Test) Run(nrEx string) {
+	if test.isRange() {
+		test.Range(nrEx)
+	} else {
+
+		run, exist := exercies[utils.Name(nrEx)]
+
+		if !exist {
+			fmt.Fprintf(os.Stderr, "Exercies %s dosen't exist\n", nrEx)
+			return
+		}
+
+		err, rezs := run(strings.Split(test.Input, ",")...)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Test %d failed with error %s\n", test.Nr, err.Error())
+		} else {
+			test.Show(rezs, true)
+		}
+	}
+}
+
+func ReadTests(file io.Reader) ([]Test, error) {
 	scanner := bufio.NewScanner(file)
 
 	tests := make([]Test, 0)
 
-	nr := 1
+	nrTest := 1
 
 	for scanner.Scan() {
 		str := scanner.Text()
-		var test Test
 
 		row := strings.Split(str, "=")
-		test = Test{
+
+		test := Test{
 			Input:   row[0],
 			Expect:  strings.ReplaceAll(row[1], "*", ""),
 			Special: strings.Contains(row[1], "*"),
-			Nr:      nr,
+			Nr:      nrTest,
 		}
-		nr++
 
 		tests = append(tests, test)
 
+		nrTest++
+
 	}
+	return tests, scanner.Err()
+}
 
+func RunTests(nrEx string, tests []Test) {
 	for _, test := range tests {
-
-		if test.isRange() {
-			test.Range(nrEx)
-		} else {
-			err, rezs := exercies[utils.Name(nrEx)](strings.Split(test.Input, ",")...)
-
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Test %d failed with error %s\n", test.Nr, err.Error())
-			} else {
-				test.Show(rezs, true)
-			}
-		}
-
+		test.Run(nrEx)
 	}
 }
