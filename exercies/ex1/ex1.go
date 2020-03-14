@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	Name = "1"
+	Name     = "1"
+	PathTest = "./exercies/ex1/test.txt"
 )
 
 //Multiples Of 3 And 5
@@ -64,7 +65,7 @@ func Register() {
 
 	//Tests
 	app.AddTest(Name, func() {
-		read, close, err := utils.ReadFileName("./exercies/ex1/test.txt")
+		read, close, err := utils.ReadFileName(PathTest)
 		defer close()
 		if err != nil {
 			panic(err.Error())

@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	Name = "2"
+	Name     = "2"
+	PathTest = "./exercies/ex2/test.txt"
 )
 
 //Even Fibonacci Numbers
@@ -73,7 +74,7 @@ func Register() {
 
 	//Tests
 	app.AddTest(Name, func() {
-		read, close, err := utils.ReadFileName("./exercies/ex2/test.txt")
+		read, close, err := utils.ReadFileName(PathTest)
 		defer close()
 		if err != nil {
 			panic(err.Error())
