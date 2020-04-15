@@ -21,28 +21,27 @@ Find the largest palindrome made from the product of two n-digit numbers
 */
 func Ex(number int64) int64 {
 
-	upperLimit := int64(math.Pow(10 ,float64(number)))
+	upperLimit := int64(math.Pow(10, float64(number)))
 	lowerLimit := upperLimit / 10
 	upperLimit--
 
 	var (
-		i = int64(0)
-		j = int64(0)
-		product  =  int64(0)
+		i          = int64(0)
+		j          = int64(0)
+		product    = int64(0)
 		maxProduct = int64(0)
 	)
 
-
-	for i = upperLimit;i>= lowerLimit;i--{
-		for j=i;j>= lowerLimit;j--{
+	for i = upperLimit; i >= lowerLimit; i-- {
+		for j = i; j >= lowerLimit; j-- {
 			product = i * j
 
 			if product < maxProduct {
 				break
 			}
-		
+
 			if isPalindrom(product) {
-				
+
 				maxProduct = product
 			}
 		}
@@ -53,10 +52,10 @@ func Ex(number int64) int64 {
 
 func isPalindrom(nr int64) bool {
 	rev := int64(0)
-	cNr := nr 
-	for  cNr != 0 {
+	cNr := nr
+	for cNr != 0 {
 
-		rev = rev * 10 + cNr % 10
+		rev = rev*10 + cNr%10
 		cNr /= 10
 	}
 

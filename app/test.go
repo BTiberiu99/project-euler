@@ -6,10 +6,10 @@ import (
 	"euler/utils"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -17,10 +17,13 @@ var (
 )
 
 type Test struct {
-	Input   string
-	Expect  string
-	Special bool
-	Nr      int
+	Input    string
+	Expect   string
+	Special  bool
+	Nr       int
+	Duration time.Duration
+	Error    string
+	Result   string
 }
 
 func (test *Test) Show(rezs []interface{}, final bool) bool {
@@ -36,23 +39,23 @@ func (test *Test) Show(rezs []interface{}, final bool) bool {
 			if !final {
 				return true
 			} else {
-				fmt.Fprintf(os.Stdout, "Test %d passes %s=%s\n", test.Nr, test.Input, test.Expect)
+				test.Result = fmt.Sprintf("Test %d passes %s=%s", test.Nr, test.Input, test.Expect)
 			}
 		} else {
-			fmt.Fprintf(os.Stderr, "Test %d failed input %s expected %s got %s\n", test.Nr, test.Input, test.Expect, rez)
+			test.Error = fmt.Sprintf("Test %d failed input %s expected %s got %s", test.Nr, test.Input, test.Expect, rez)
 			return false
 		}
 	} else {
 		run, exist := specialtests.All[test.SanitizedExpect()]
 
 		if !exist {
-			fmt.Fprintf(os.Stderr, "Test %s dosen't exist\n", test.Expect)
+			test.Error = fmt.Sprintf("Test %s dosen't exist", test.Expect)
 			return false
 		} else {
 			pass, err := run(rezs)
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Test %d failed with error %s \n", test.Nr, err.Error())
+				test.Error = fmt.Sprintf("Test %d failed with error %s", test.Nr, err.Error())
 				return false
 			} else {
 
@@ -61,11 +64,11 @@ func (test *Test) Show(rezs []interface{}, final bool) bool {
 					if !final {
 						return true
 					} else {
-						fmt.Fprintf(os.Stdin, "Test %d passes \n", test.Nr)
+						test.Result = fmt.Sprintf("Test %d passes", test.Nr)
 					}
 
 				} else {
-					fmt.Fprintf(os.Stderr, "Test %d didn't pass \n", test.Nr)
+					test.Result = fmt.Sprintf("Test %d didn't pass", test.Nr)
 					return false
 				}
 			}
@@ -107,7 +110,7 @@ func (test *Test) Range(nrEx string) {
 		err, rezs := exercies[utils.Name(nrEx)](fmt.Sprintf("%d", i))
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Test %d failed with error %s\n", test.Nr, err.Error())
+			test.Error = fmt.Sprintf("Test %d failed with error %s", test.Nr, err.Error())
 			break
 		}
 
@@ -118,26 +121,39 @@ func (test *Test) Range(nrEx string) {
 
 }
 
-func (test *Test) Run(nrEx string) {
-	if test.isRange() {
-		test.Range(nrEx)
-	} else {
-
-		run, exist := exercies[utils.Name(nrEx)]
-
-		if !exist {
-			fmt.Fprintf(os.Stderr, "Exercies %s dosen't exist\n", nrEx)
-			return
-		}
-
-		err, rezs := run(strings.Split(test.Input, ",")...)
-
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Test %d failed with error %s\n", test.Nr, err.Error())
+func (test *Test) Run(nrEx string) *Test {
+	test.Duration = utils.Timeit(func() {
+		if test.isRange() {
+			test.Range(nrEx)
 		} else {
-			test.Show(rezs, true)
+
+			run, exist := exercies[utils.Name(nrEx)]
+
+			if !exist {
+				test.Error = fmt.Sprintf("Exercies %s dosen't exist", nrEx)
+				return
+			}
+
+			err, rezs := run(strings.Split(test.Input, ",")...)
+
+			if err != nil {
+				test.Error = fmt.Sprintf("Test %d failed with error %s", test.Nr, err.Error())
+			} else {
+				test.Show(rezs, true)
+			}
 		}
+	})
+
+	return test
+}
+
+func (test *Test) Log() {
+	message := test.Result
+	if message == "" {
+		message = test.Error
 	}
+
+	fmt.Printf("%s | time=%s\n", message, test.Duration)
 }
 
 func ReadTests(file io.Reader) ([]Test, error) {
@@ -169,6 +185,6 @@ func ReadTests(file io.Reader) ([]Test, error) {
 
 func RunTests(nrEx string, tests []Test) {
 	for _, test := range tests {
-		test.Run(nrEx)
+		test.Run(nrEx).Log()
 	}
 }

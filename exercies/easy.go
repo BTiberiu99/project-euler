@@ -5,6 +5,8 @@ import (
 	"euler/utils"
 )
 
+var All = map[string]func(){}
+
 func EasyTest(name, pathTest string) func() {
 	return func() {
 		read, close, err := utils.ReadFileName(pathTest)
